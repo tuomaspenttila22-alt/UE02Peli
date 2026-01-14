@@ -1,37 +1,71 @@
+import presets
+
+
 import pygame
+import assetLoader
+import object
 import renderer
 import game
 
+
+#Init 
 pygame.init()
 
-screen = pygame.display.set_mode((800, 600))
+
+
+screen = pygame.display.set_mode(presets.VIRTUAL_SCREEN_RECT, pygame.RESIZABLE)
+game_surface = pygame.Surface(presets.VIRTUAL_SCREEN_RECT)
+
 pygame.display.set_caption("Apostasy v.1.0")
 
+assetLoader.load_pngs("assets/images", pygame)
 
-#INITS
-renderer.initRenderer(pygame)
+
+ObjectManager = object.ObjectManager()
+
+game.startGame(pygame, ObjectManager)
 
 clock = pygame.time.Clock()
 running = True
 
+
+def handle_window_event(event):
+    global screen
+    global running
+
+    if event.type == pygame.VIDEORESIZE:
+        screen = pygame.display.set_mode(
+            event.size,
+            pygame.RESIZABLE
+        )
+
+    elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_F11:
+            screen = pygame.display.set_mode(
+                screen.get_size(),
+                pygame.FULLSCREEN
+            )
+            
+    if event.type == pygame.QUIT:
+            running = False
+
+#Main loop
 while running:
     # 1. Events
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            print(event.key)
+        handle_window_event(event)
         
      
 
     # 2. Update game state
-    game.updateGame()
+    game.updateGame(pygame, ObjectManager)
     
     # 3. Draw
-    renderer.renderScreen(screen, pygame)
-
+    renderer.renderScreen(pygame, game_surface, screen, ObjectManager )
 
     # 4. Timing
     clock.tick(60)
+    
+ 
 
 pygame.quit()

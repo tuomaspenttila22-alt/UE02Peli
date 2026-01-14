@@ -1,22 +1,17 @@
 
-import assetLoader
 
-
-global images
-
-def initRenderer(pygame):
-    global images
-    images = assetLoader.load_pngs("assets/images", pygame)
-    print(len(images))
-    
-
-
-def renderScreen(screen, pygame):
+def renderScreen(pygame, game_surface, screen,  ObjectManager):
     screen.fill((30, 30, 30))  # background
+
+    ObjectManager.draw(game_surface)
+        
     
-    pygame.draw.rect(screen, (255, 0, 0), (10, 10, 100, 200))
-    
+    window_width, window_height = screen.get_size()
+
+    scaled_surface = pygame.transform.scale(game_surface,(window_width, window_height))
+
+    screen.blit(scaled_surface, (0, 0))
     pygame.display.flip()
-    print(len(images))
+   
     
    
