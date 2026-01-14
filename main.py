@@ -1,6 +1,4 @@
 import presets
-
-
 import pygame
 import assetLoader
 import object
@@ -46,6 +44,10 @@ def handle_window_event(event):
             
     if event.type == pygame.QUIT:
             running = False
+    
+    for obj in ObjectManager.objects:
+        if hasattr(obj, "handle_event"):
+            obj.handle_event(event)
 
 
 

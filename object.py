@@ -80,24 +80,12 @@ class GameObject:
     def collides_with(self, other):
         return self.rect.colliderect(other.rect)
     
-    def resize(self, width, height):
-        """
-        Resize the object's surface to a new size.
-        Keeps the object centered.
-        """
-        center = self.rect.center
+    def set_scale(self, factor):
+        self.scale_factor = max(0.01, factor)
+        self._apply_transform()
 
-        self.surface = pygame.transform.scale(self.original_surface, (width, height))
-        self.rect = self.surface.get_rect(center=center)
-        
-    def scale(self, factor):
-        """
-        Scale the object by a multiplier.
-        Example: factor = 2.0 doubles the size.
-        """
-        new_width = int(self.rect.width * factor)
-        new_height = int(self.rect.height * factor)
-        self.resize(new_width, new_height)
+    def scale(self, delta):
+        self.set_scale(self.scale_factor * delta)
         
     def set_rotation(self, degrees):
         self.rotation = degrees % 360
