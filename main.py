@@ -11,8 +11,6 @@ import game
 #Init 
 pygame.init()
 
-
-
 screen = pygame.display.set_mode(presets.VIRTUAL_SCREEN_RECT, pygame.RESIZABLE)
 game_surface = pygame.Surface(presets.VIRTUAL_SCREEN_RECT)
 
@@ -49,22 +47,25 @@ def handle_window_event(event):
     if event.type == pygame.QUIT:
             running = False
 
+
+
+
 #Main loop
 while running:
     # 1. Events
     for event in pygame.event.get():
         handle_window_event(event)
-        
-     
 
     # 2. Update game state
-    game.updateGame(pygame, ObjectManager)
+    game.updateGame(pygame, ObjectManager, clock.get_time())
     
     # 3. Draw
     renderer.renderScreen(pygame, game_surface, screen, ObjectManager )
 
     # 4. Timing
     clock.tick(60)
+    
+    
     
  
 
