@@ -4,23 +4,40 @@ import text
 import assetLoader
 import presets
 
-def ButtonPress(obj):
-    ask = input("WRITE: ")
-    obj.getChildByName("score").set_text(ask)
-    obj.move(0,25)
+class Game():
+    def __init__(
+        self,
+        game_state
+    ):
+        self.game_state = game_state
+        
+    
+    
+global game    
+        
+
+def Start_Pressed(obj):
+    object.objectManager.clearObjects()
+    game.game_state = "none"
     
 
 def startGame(pygame):
-
-
+    global game
+    game = Game("start_screen")
+    
     start_button = button.Button(
     name="start",
     surface=assetLoader.images["Apostasy_Logo"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=ButtonPress,
+    on_click=Start_Pressed,
     base_scale=4
     )
-
+    start_button.center()
+    
+    Jesus_art = object.GameObject("JesusArt",surface=assetLoader.images["Jesus"],position=(0,0 ) )
+    Jesus_art.set_scale(0.25)
+    Jesus_art.center()
+    
     font = pygame.font.Font(None, 48)
 
     score_text = text.TextObject(
@@ -36,14 +53,19 @@ def startGame(pygame):
     score_text.set_scale(0.3)
     score_text.set_opacity(180)
     
-    start_button.add_child(score_text, (-100,-50))
-    
+    start_button.add_child(score_text, (-50,-70))
+    score_text.center()
+    score_text.move(0,-50)
+    object.objectManager.add(Jesus_art)
     object.objectManager.add(start_button)
+    
     
     
 
 def updateGame(pygame, dt):
+    global game
     object.objectManager.update(dt)
+    
     
     
     

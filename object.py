@@ -1,6 +1,6 @@
 import itertools
 import pygame
-
+import presets
 class GameObject:
     _id_counter = itertools.count()
 
@@ -141,6 +141,33 @@ class GameObject:
 
     def rotate(self, delta_degrees):
         self.set_rotation(self.rotation + delta_degrees)
+        
+    def center(self, screen_size=presets.VIRTUAL_SCREEN_RECT):
+        """
+        Centers the object.
+        - If the object has a parent: center within the parent.
+        - If no parent: center on the virtual screen.
+        """
+        if self.parent:
+            parent_center = self.parent.rect.center
+            self.rect.center = parent_center
+
+            # Update local offset relative to parent
+            self.local_pos = (
+                pygame.Vector2(self.rect.topleft)
+                - pygame.Vector2(self.parent.rect.topleft)
+            )
+
+        else:
+            if screen_size is None:
+                raise ValueError(
+                    "screen_size must be provided when centering a root object"
+                )
+
+            self.rect.center = (
+                screen_size[0] // 2,
+                screen_size[1] // 2
+            )
 
     
     
