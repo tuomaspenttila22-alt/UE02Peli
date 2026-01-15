@@ -21,6 +21,38 @@ class GameObject:
         self.scale_factor = 1.0
         self.opacity = 255         # 0–255
         
+        #Parent/Child
+        self.parent = None
+        self.children = []
+
+        self.local_pos = pygame.Vector2(0, 0)
+        self.local_scale_factor = 1.0
+        
+    def add_child(self, child, offset=(0, 0)):
+        child.parent = self
+        child.local_pos = pygame.Vector2(offset)
+        self.children.append(child)
+
+        child._update_world_position()   
+        
+    def _update_world_position(self):
+        if self.parent:
+            self.rect.topleft = (
+                self.parent.rect.topleft + self.local_pos
+            )
+            self.scale_factor = self.parent.scale_factor * self.local_scale_factor
+            self._apply_transform()
+    def getChildByName(self, name):
+        for child in self.children:
+            if child.name == name:
+                return child
+        return None     
+             
+    def remove_child(self, child):
+        if child in self.children:
+            self.children.remove(child)
+            child.parent = None
+    
     def _apply_transform(self):
         center = self.rect.center
 
@@ -44,20 +76,27 @@ class GameObject:
         self.rect = self.surface.get_rect(center=center)
     
     def update(self, dt):
+        self._update_world_position()
+        for child in self.children:
+            child.update(dt)
         
-        pass
 
     def draw(self, target_surface):
-        """
-        Draw object to the screen (or another surface).
-        """
+        if not self.visible:
+            return
+
         target_surface.blit(self.surface, self.rect)
+
+        for child in self.children:
+            child.draw(target_surface)
 
     def destroy(self):
         """
         Mark object for removal.
         """
         self.alive = False
+        for child in self.children:
+            child.destroy()
 
     def show(self):
         self.visible = True
@@ -71,17 +110,26 @@ class GameObject:
         self._apply_transform()
     
     def move(self, dx=0, dy=0):
+        self.local_pos.x += dx
+        self.local_pos.y += dy
         self.rect.x += dx
         self.rect.y += dy
 
+        for child in self.children:
+            child._update_world_position()
+
     def set_position(self, x, y):
         self.rect.topleft = (x, y)
+
+        for child in self.children:
+            child._update_world_position()
 
     def collides_with(self, other):
         return self.rect.colliderect(other.rect)
     
     def set_scale(self, factor):
         self.scale_factor = max(0.01, factor)
+        self.local_scale_factor = max(0.01, factor)
         self._apply_transform()
 
     def scale(self, delta):
@@ -113,3 +161,14 @@ class ObjectManager:
     def draw(self, screen):
         for obj in self.objects:
             obj.draw(screen)
+            
+    def getObjectByName(self, name):
+        for obj in self.objects:
+            if obj.name == name:
+                return obj
+        return None
+    
+    def clearObjects(self):
+        self.objects = []
+            
+objectManager = ObjectManager()

@@ -16,14 +16,10 @@ pygame.display.set_caption("Apostasy v.1.0")
 
 assetLoader.load_pngs("assets/images", pygame)
 
-
-ObjectManager = object.ObjectManager()
-
-game.startGame(pygame, ObjectManager)
+game.startGame(pygame)
 
 clock = pygame.time.Clock()
 running = True
-
 
 def handle_window_event(event):
     global screen
@@ -45,7 +41,7 @@ def handle_window_event(event):
     if event.type == pygame.QUIT:
             running = False
     
-    for obj in ObjectManager.objects:
+    for obj in object.objectManager.objects:
         if hasattr(obj, "handle_event"):
             obj.handle_event(event)
 
@@ -59,10 +55,10 @@ while running:
         handle_window_event(event)
 
     # 2. Update game state
-    game.updateGame(pygame, ObjectManager, clock.get_time())
+    game.updateGame(pygame, clock.get_time())
     
     # 3. Draw
-    renderer.renderScreen(pygame, game_surface, screen, ObjectManager )
+    renderer.renderScreen(pygame, game_surface, screen )
 
     # 4. Timing
     clock.tick(60)

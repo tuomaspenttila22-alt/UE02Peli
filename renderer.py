@@ -1,9 +1,9 @@
+import object
 
-
-def renderScreen(pygame, game_surface, screen,  ObjectManager):
+def renderScreen(pygame, game_surface, screen):
     game_surface.fill((30, 30, 30))  # background
 
-    ObjectManager.draw(game_surface)
+    object.objectManager.draw(game_surface)
         
     
     window_width, window_height = screen.get_size()
