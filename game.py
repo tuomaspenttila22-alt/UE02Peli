@@ -25,13 +25,11 @@ def startGame(pygame):
     global game
     game = Game("start_screen")
     
-    start_button = button.Button(
-    name="start",
+    start_button = button.Button(name="start",
     surface=assetLoader.images["Apostasy_Logo"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Start_Pressed,
-    base_scale=4
-    )
+    base_scale=4)
     start_button.center()
     
     Jesus_art = object.GameObject("JesusArt",surface=assetLoader.images["Jesus"],position=(0,0 ) )
@@ -45,8 +43,7 @@ def startGame(pygame):
         text="Score: 0",
         font=font,
         color=(255, 255, 255),
-        position=(presets.VIRTUAL_WIDTH/2-100, 50)
-    )
+        position=(presets.VIRTUAL_WIDTH/2-100, 50))
 
     score_text.set_text("Welcome to play")
     score_text.set_color((255, 200, 50))
