@@ -42,6 +42,7 @@ class GameObject:
             )
             self.scale_factor = self.parent.scale_factor * self.local_scale_factor
             self._apply_transform()
+            
     def getChildByName(self, name):
         for child in self.children:
             if child.name == name:
