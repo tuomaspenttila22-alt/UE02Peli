@@ -3,22 +3,35 @@ import button
 import text
 import assetLoader
 import presets
-
+import pygame
 class Game():
     def __init__(
         self,
         game_state
     ):
         self.game_state = game_state
+        self.soul_count = 0
         
     
     
 global game    
         
+font = pygame.font.Font(None, 48)
 
 def Start_Pressed(obj):
     object.objectManager.clearObjects()
-    game.game_state = "none"
+    game.game_state = "game"
+    
+    Soul_Count = object.GameObject(name="soul_count", surface=assetLoader.images["soul"], position=(0,0))
+    Soul_Count.scale(0.05)
+    Soul_Count.to_top_left()
+    
+    Soul_Count_text = text.TextObject("soul_count_text",font,color=(255, 255, 255), position=(0,0))
+    Soul_Count_text.set_text(0)
+    
+    
+    object.objectManager.add(Soul_Count)
+    
     
 
 def startGame(pygame):
@@ -36,7 +49,7 @@ def startGame(pygame):
     Jesus_art.set_scale(0.25)
     Jesus_art.center()
     
-    font = pygame.font.Font(None, 48)
+    
 
     score_text = text.TextObject(
         name="score",

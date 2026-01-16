@@ -168,7 +168,24 @@ class GameObject:
                 screen_size[0] // 2,
                 screen_size[1] // 2
             )
+    def to_top_left(self, screen_size=presets.VIRTUAL_SCREEN_RECT):
+        """
+        Moves the object to the top-left corner.
+        - If the object has a parent: top-left of the parent.
+        - If no parent: top-left of the screen.
+        """
+        if self.parent:
+            self.rect.topleft = self.parent.rect.topleft
 
+            # Update local offset
+            self.local_pos = (
+                pygame.Vector2(self.rect.topleft)
+                - pygame.Vector2(self.parent.rect.topleft)
+            )
+
+        else:
+            # Screen top-left is always (0, 0)
+            self.rect.topleft = (0, 0)
     
     
     
