@@ -53,6 +53,7 @@ def startGame(pygame):
     start_button.add_child(score_text, (-50,-70))
     score_text.center()
     score_text.move(0,-50)
+    
     object.objectManager.add(Jesus_art)
     object.objectManager.add(start_button)
     
