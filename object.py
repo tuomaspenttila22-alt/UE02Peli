@@ -32,6 +32,9 @@ class GameObject:
         self.local_pos = pygame.Vector2(0, 0)
         self.local_scale_factor = 1.0
         
+        #Mask
+        self.mask = pygame.mask.from_surface(self.surface)
+        
     def add_child(self, child, offset=(0, 0)):
         child.parent = self
         child.local_pos = pygame.Vector2(offset)
@@ -79,6 +82,8 @@ class GameObject:
 
         self.surface = surf
         self.rect = self.surface.get_rect(center=center)
+        
+        self.mask = pygame.mask.from_surface(self.surface)
     
     def update(self, dt):
         self.time_alive += dt
@@ -88,7 +93,7 @@ class GameObject:
         self._update_world_position()
         for child in self.children:
             child.update(dt)
-        
+    
 
     def draw(self, target_surface):
         if not self.visible:
@@ -195,6 +200,7 @@ class GameObject:
         else:
             # Screen top-left is always (0, 0)
             self.rect.topleft = (0, 0)
+    
     
     
     

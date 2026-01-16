@@ -4,6 +4,7 @@ import assetLoader
 import object
 import renderer
 import game
+import math
 
 
 #Init 
@@ -65,6 +66,7 @@ while running:
     # 4. Timing
     clock.tick(60)
     
+    pygame.display.set_caption(f"Apostasy v.1.0    FPS: {round(clock.get_fps())}")
     
     
  
