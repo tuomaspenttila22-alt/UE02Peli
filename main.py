@@ -9,6 +9,8 @@ import game
 #Init 
 pygame.init()
 
+presets.init_font()
+
 screen = pygame.display.set_mode(presets.VIRTUAL_SCREEN_RECT, pygame.RESIZABLE)
 game_surface = pygame.Surface(presets.VIRTUAL_SCREEN_RECT)
 

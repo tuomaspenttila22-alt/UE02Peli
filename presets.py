@@ -1,8 +1,16 @@
-VIRTUAL_WIDTH = 1000
-VIRTUAL_HEIGHT = 600
+VIRTUAL_WIDTH = 1200
+VIRTUAL_HEIGHT = 800
 VIRTUAL_SCREEN_RECT = (VIRTUAL_HEIGHT, VIRTUAL_HEIGHT)
 
 import pygame
+
+global main_font
+
+
+def init_font():
+    
+    global main_font
+    main_font = pygame.font.Font(None, 48)
 
 def get_mouse_pos_virtual(screen):
     mx, my = pygame.mouse.get_pos()

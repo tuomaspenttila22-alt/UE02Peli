@@ -4,10 +4,14 @@ import presets
 class GameObject:
     _id_counter = itertools.count()
 
-    def __init__(self, name, surface, position=(0, 0)):
+    def __init__(self, name, surface, position=(0, 0), updateLoop = None):
         self.id = next(GameObject._id_counter)
         self.name = name
 
+        
+        self.updateLoop = updateLoop
+        self.time_alive = 0
+        
         self.original_surface = surface
         self.surface = surface
 
@@ -77,6 +81,10 @@ class GameObject:
         self.rect = self.surface.get_rect(center=center)
     
     def update(self, dt):
+        self.time_alive += dt
+        if self.updateLoop:
+            self.updateLoop(self)
+        
         self._update_world_position()
         for child in self.children:
             child.update(dt)

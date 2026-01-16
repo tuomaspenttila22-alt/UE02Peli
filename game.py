@@ -4,31 +4,56 @@ import text
 import assetLoader
 import presets
 import pygame
+import math
+
 class Game():
     def __init__(
         self,
         game_state
     ):
         self.game_state = game_state
-        self.soul_count = 0
+        self.soul_count = 100
         
-    
-    
+
 global game    
         
-font = pygame.font.Font(None, 48)
+def Soul_Count_Update(obj):
+    obj.set_text(f"SOULS: {game.soul_count}")
+    obj.set_color((0,40 + 40*math.sin(0.002 * obj.time_alive),255))
+    obj.set_opacity(180+80*math.sin(0.002 * obj.time_alive))
+    
+    game.soul_count += 1
+
+
 
 def Start_Pressed(obj):
+    
     object.objectManager.clearObjects()
+    
     game.game_state = "game"
     
-    Soul_Count = object.GameObject(name="soul_count", surface=assetLoader.images["soul"], position=(0,0))
-    Soul_Count.scale(0.05)
+    Soul_Count = object.GameObject(name="soul_count", surface=assetLoader.images["soul_better"], position=(0,0))
+    Soul_Count.scale(0.25)
     Soul_Count.to_top_left()
+    Soul_Count.move(-40,-30)
     
-    Soul_Count_text = text.TextObject("soul_count_text",font,color=(255, 255, 255), position=(0,0))
-    Soul_Count_text.set_text(0)
     
+    
+    Soul_Count_text = text.TextObject(
+        name="soul_count_score",
+        text="0",
+        font=presets.main_font,
+        color=(0, 10, 255),
+        position=(0,0))
+    
+    
+    Soul_Count_text.set_text(f"SOULS: {game.soul_count}")
+    Soul_Count_text.updateLoop = Soul_Count_Update
+    
+    Soul_Count.add_child(Soul_Count_text, (0,0))
+    Soul_Count_text.set_scale(2.3)
+    Soul_Count_text.set_opacity(180)
+    Soul_Count_text.move(105,63.5)
     
     object.objectManager.add(Soul_Count)
     
@@ -49,12 +74,10 @@ def startGame(pygame):
     Jesus_art.set_scale(0.25)
     Jesus_art.center()
     
-    
-
     score_text = text.TextObject(
         name="score",
         text="Score: 0",
-        font=font,
+        font=presets.main_font,
         color=(255, 255, 255),
         position=(presets.VIRTUAL_WIDTH/2-100, 50))
 
