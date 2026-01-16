@@ -9,7 +9,7 @@ class TextObject(object.GameObject):
         font,
         color,
         position=(0, 0),
-        antialias=True
+        antialias=False
     ):
         self.text = text
         self.font = font

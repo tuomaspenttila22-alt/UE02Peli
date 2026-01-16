@@ -156,7 +156,7 @@ class GameObject:
     def rotate(self, delta_degrees):
         self.set_rotation(self.rotation + delta_degrees)
         
-    def center(self, screen_size=presets.VIRTUAL_SCREEN_RECT):
+    def center(self,screen_size=presets.VIRTUAL_SCREEN_RECT):
         """
         Centers the object.
         - If the object has a parent: center within the parent.
@@ -226,6 +226,12 @@ class ObjectManager:
             if obj.name == name:
                 return obj
         return None
+    
+    def hasObjectByName(self, name):
+        for obj in self.objects:
+            if obj.name == name:
+                return True
+        return False
     
     def clearObjects(self):
         self.objects = []

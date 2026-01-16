@@ -29,6 +29,7 @@ class Button(object.GameObject):
 
         self.is_hovered = False
         self.is_pressed = False
+        self.hover_quit = False
         
         self.hover_time = 0.0
         self.base_scale = base_scale
@@ -58,7 +59,7 @@ class Button(object.GameObject):
             hovered = self.rect.collidepoint(mouse_pos)
             
         pressed = hovered and mouse_buttons[0]
-        self.is_hovered = False
+        
         if pressed:
             new_state = self.pressed_surface
             self.set_scale(self.base_scale)
@@ -70,6 +71,11 @@ class Button(object.GameObject):
             self.hover_time += dt
             
         else:
+            self.hover_quit = False
+            if self.is_hovered:
+                self.hover_quit = True
+                
+            self.is_hovered = False
             new_state = self.default_surface
             self.set_scale(self.base_scale)
             self.hover_time = 0.0
