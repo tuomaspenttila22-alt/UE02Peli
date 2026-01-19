@@ -6,6 +6,7 @@ import presets
 import pygame
 import math
 import region
+import upgrades
 
 
 #PÄÄ PELI CLASSI
@@ -20,14 +21,19 @@ class Game():
         
         self.soul_count = 100
                 
-        self.regions = {"Europe" : region.Region("Europe"),
-                        "Ru" : region.Region("Ru"),
-                        "Asia" : region.Region("Asia"),
-                        "Eafr" : region.Region("Eafr"),
-                        "Islam" : region.Region("Islam"),
-                        "Pam" : region.Region("Pam"),
-                        "Eam" : region.Region("Eam"),
-                        "Oce" : region.Region("Oce"),}
+        self.regions = {"Europe" : region.Region("Europe", "W"),
+                        "Ru" : region.Region("Ru", "W"),
+                        "Asia" : region.Region("Asia", "SE"),
+                        "Eafr" : region.Region("Eafr", "W"),
+                        "Islam" : region.Region("Islam", "SE"),
+                        "Pam" : region.Region("Pam", "W"),
+                        "Eam" : region.Region("Eam", "W"),
+                        "Oce" : region.Region("Oce", "W"),}
+        
+        self.upgrades = {"Demon" : upgrades.Upgrade("Demon"),
+                         "Internet" : upgrades.Upgrade("Internet"),
+                         "Education" : upgrades.Upgrade("Education"),
+                         "Persecution" : upgrades.Upgrade("Persecution"),}
         
 
 global game    
@@ -341,6 +347,19 @@ def updateGame(pygame, dt):
         tick_timer = 0
     else:
         tick_timer += dt
+
+def update_region_stats():
+
+    for region in Game.regions:
+        if region.get_type() == "SE":           #Asia ja Islam
+            region.effectiveness = 1 + Game.upgrades("Internet") + Game.upgrades("Persecution")
+            region.foulness = 1 + Game.upgrades("Demon") + Game.upgrades("Persecution")
+        elif region.get_type == "W":            #Europe, Ru, Eafr, Pam, Eam ja Oce
+            region.effectiveness = 1 + Game.upgrades("Internet") + Game.upgrades("Education")
+            region.foulness = 1 + Game.upgrades("Demon") + Game.upgrades("Education")
+        else:                                   #Varalta ettei peli hajoa jos unohtu laittaa type
+            region.effectiveness = 1 + Game.upgrades("Internet")
+            region.foulness = 1 + Game.upgrades("Demon")
     
     
     

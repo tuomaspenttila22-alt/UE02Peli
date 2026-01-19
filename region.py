@@ -1,9 +1,10 @@
 
 class Region:
 
-    def __init__(self, name):
+    def __init__(self, name, type):
 
         self.name = name
+        self.type = type
         self.percent = 100
         
         self.effectiveness = 10
@@ -32,3 +33,6 @@ class Region:
     
     def get_infamy(self):
         return self.infamy
+    
+    def get_type(self):
+        return self.type
