@@ -75,6 +75,12 @@ def Region_Update(obj):
                 Text_Data.center()
                 Text_Data.move(-75,-30)
                 
+                Pent_Icon = object.GameObject("Pentagram", "allah", (0,0), None)
+                Square_Icon.add_child(Pent_Icon)
+                Pent_Icon.scale(1)
+                Pent_Icon.center()
+                Pent_Icon.move(0,10)
+                
                 Square_Icon.add_child(Text)
                 Text.center()
                 Text.move(0,-60)
