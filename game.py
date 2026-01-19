@@ -15,8 +15,11 @@ class Game():
         game_state
     ):
         self.game_state = game_state
-        self.soul_count = 100
+        self.mouse_free = True
+        self.cliked_region = None
         
+        self.soul_count = 100
+                
         self.regions = {"Europe" : region.Region("Europe"),
                         "Ru" : region.Region("Ru"),
                         "Asia" : region.Region("Asia"),
@@ -36,6 +39,9 @@ def Soul_Count_Update(obj):
     obj.set_opacity(180+80*math.sin(0.002 * obj.time_alive))
     
     game.soul_count += 1
+
+def Region_Click(obj):
+    game.cliked_region = obj.name
 
 def Region_Update(obj):
     
@@ -71,15 +77,21 @@ def Region_Update(obj):
                 
                 Text_Data = text.TextObject("data_text", f"CORRUPTION", presets.main_font, (255,0,20), (0,0), False)
                 Square_Icon.add_child(Text_Data)
-                Text_Data.scale(0.025)
+                Text_Data.scale(0.020)
                 Text_Data.center()
-                Text_Data.move(-75,-30)
+                Text_Data.move(-55,-30)
                 
-                Pent_Icon = object.GameObject("Pentagram", "allah", (0,0), None)
+                Text_Infamy = text.TextObject("infamy_text", f"INFAMY", presets.main_font, (214, 214, 34), (0,0), False)
+                Square_Icon.add_child(Text_Infamy)
+                Text_Infamy.scale(0.020)
+                Text_Infamy.center()
+                Text_Infamy.move(-55,5)
+                
+                Pent_Icon = object.GameObject("Pentagram", assetLoader.images["allah"], (0,0), None)
                 Square_Icon.add_child(Pent_Icon)
-                Pent_Icon.scale(1)
+                Pent_Icon.scale(0.0045)
                 Pent_Icon.center()
-                Pent_Icon.move(0,10)
+                Pent_Icon.move(-95,-35)
                 
                 Square_Icon.add_child(Text)
                 Text.center()
@@ -92,13 +104,16 @@ def Region_Update(obj):
 
                 Data_text = info_obj.getChildByName("data_text")
                 Data_text.set_text(f"CORRUPTION {100-game.regions[obj.name].get_percent()} %")
+                
+                Data_text = info_obj.getChildByName("infamy_text")
+                Data_text.set_text(f"INFAMY {game.regions[obj.name].get_infamy()} %")
         
     else:
 
         
         if obj.hover_quit:
             obj.set_scale(0.8)
-            game.regions[obj.name].reduce()
+            
             if object.objectManager.hasObjectByName(f"{obj.name}info_square"):
                 info_obj = object.objectManager.getObjectByName(f"{obj.name}info_square")
                 info_obj.destroy()
@@ -137,7 +152,7 @@ def Start_Pressed(obj):
     Europe_Icon = button.Button(name="Europe",
     surface=assetLoader.images["eur"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -148,7 +163,7 @@ def Start_Pressed(obj):
     Ru_Icon = button.Button(name="Ru",
     surface=assetLoader.images["ru"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -159,7 +174,7 @@ def Start_Pressed(obj):
     Asia_Icon = button.Button(name="Asia",
     surface=assetLoader.images["asia"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -170,7 +185,7 @@ def Start_Pressed(obj):
     Islam_Icon = button.Button(name="Islam",
     surface=assetLoader.images["islam"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -181,7 +196,7 @@ def Start_Pressed(obj):
     Oce_Icon = button.Button(name="Oce",
     surface=assetLoader.images["oce"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -192,7 +207,7 @@ def Start_Pressed(obj):
     Eam_Icon = button.Button(name="Eam",
     surface=assetLoader.images["eam"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -203,7 +218,7 @@ def Start_Pressed(obj):
     Eafr_Icon = button.Button(name="Eafr",
     surface=assetLoader.images["eafr"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -214,7 +229,7 @@ def Start_Pressed(obj):
     Pam_Icon = button.Button(name="Pam",
     surface=assetLoader.images["pam"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
-    on_click=None,
+    on_click=Region_Click,
     base_scale=0.8,
     accurate_hit=True,
     hover_anim=False)
@@ -231,6 +246,18 @@ def Start_Pressed(obj):
     object.objectManager.add(Eam_Icon)
     object.objectManager.add(Eafr_Icon)
     object.objectManager.add(Pam_Icon)
+    
+def Dem_Temple_Start(obj):
+    obj.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
+    
+    if game.cliked_region != None:
+        obj.name = f"Demonic_Temple_{game.cliked_region}"
+        print(f"Created temple in {game.cliked_region}")
+        game.cliked_region = None
+        game.mouse_free = True
+        obj.updateLoop = None
+    
+    
     
     
     
@@ -286,7 +313,16 @@ def map_update():
 global tick_timer   
 tick_timer = 100000000000000
 
-
+def inputEvent(event):
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_e and game.mouse_free:
+            print("Added Tempke")
+            game.mouse_free = False
+            Temple = object.GameObject("Demonic_Temple", assetLoader.images["Demonic_Temple"], (0,0), Dem_Temple_Start)
+            Temple.scale(1)
+            Temple.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
+            
+            object.objectManager.add(Temple)
 
 
 

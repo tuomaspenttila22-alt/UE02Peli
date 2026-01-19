@@ -8,7 +8,7 @@ class Region:
         
         self.effectiveness = 10
         self.foulness= 1
-        self.infamy = 1
+        self.infamy = 0
         
         #On totta jos äskettäin vaihdettiin prosentti
         self.changed_percent = False

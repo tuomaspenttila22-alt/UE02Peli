@@ -56,6 +56,7 @@ while running:
     # 1. Events
     for event in pygame.event.get():
         handle_window_event(event)
+        game.inputEvent(event)
 
     # 2. Update game state
     game.updateGame(pygame, clock.get_time())
