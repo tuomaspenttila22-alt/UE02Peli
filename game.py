@@ -315,7 +315,8 @@ tick_timer = 100000000000000
 
 def inputEvent(event):
     if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_e and game.mouse_free:
+        if event.key == pygame.K_e and game.mouse_free and game.soul_count >= 100:
+            game.soul_count -= 100
             print("Added Tempke")
             game.mouse_free = False
             Temple = object.GameObject("Demonic_Temple", assetLoader.images["Demonic_Temple"], (0,0), Dem_Temple_Start)

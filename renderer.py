@@ -1,7 +1,7 @@
 import object
 
 def renderScreen(pygame, game_surface, screen):
-    game_surface.fill((30, 30, 30))  # background
+    game_surface.fill((10, 10, 10))  # background
 
     object.objectManager.draw(game_surface)
         
