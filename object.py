@@ -12,6 +12,7 @@ class GameObject:
         self.updateLoop = updateLoop
         self.time_alive = 0
         
+        self.base_surface = surface
         self.original_surface = surface
         self.surface = surface
 
@@ -200,6 +201,38 @@ class GameObject:
         else:
             # Screen top-left is always (0, 0)
             self.rect.topleft = (0, 0)
+            
+    def set_hue(self, hue_shift):
+        """
+        Shifts the hue of the object's surface.
+        hue_shift: 0–360 degrees
+        """
+        surf = self.base_surface.copy()
+        surf.lock()
+
+        width, height = surf.get_size()
+
+        for x in range(width):
+            for y in range(height):
+                r, g, b, a = surf.get_at((x, y))
+
+                if a == 0:
+                    continue
+
+                color = pygame.Color(r, g, b)
+                h, s, v, _ = color.hsva
+
+                h = (h + hue_shift) % 360
+
+                color.hsva = (h, s, v, a * 100 / 255)
+                color.a = a  # restore full alpha precision
+
+                surf.set_at((x, y), color)
+
+        surf.unlock()
+
+        self.original_surface = surf
+        self._apply_transform()
     
     
     

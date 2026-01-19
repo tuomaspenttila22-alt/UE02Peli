@@ -5,7 +5,10 @@ import assetLoader
 import presets
 import pygame
 import math
+import region
 
+
+#PÄÄ PELI CLASSI
 class Game():
     def __init__(
         self,
@@ -13,6 +16,15 @@ class Game():
     ):
         self.game_state = game_state
         self.soul_count = 100
+        
+        self.regions = {"Europe" : region.Region("Europe"),
+                        "Ru" : region.Region("Ru"),
+                        "Asia" : region.Region("Asia"),
+                        "Eafr" : region.Region("Eafr"),
+                        "Islam" : region.Region("Islam"),
+                        "Pam" : region.Region("Pam"),
+                        "Eam" : region.Region("Eam"),
+                        "Oce" : region.Region("Oce"),}
         
 
 global game    
@@ -56,6 +68,13 @@ def Region_Update(obj):
                 
                 Text = text.TextObject("info_text", content, presets.main_font, (255,255,255), (0,0), False)
                 Text.scale(0.2)
+                
+                Text_Data = text.TextObject("data_text", f"CORRUPTION", presets.main_font, (255,0,20), (0,0), False)
+                Square_Icon.add_child(Text_Data)
+                Text_Data.scale(0.025)
+                Text_Data.center()
+                Text_Data.move(-75,-30)
+                
                 Square_Icon.add_child(Text)
                 Text.center()
                 Text.move(0,-60)
@@ -64,10 +83,16 @@ def Region_Update(obj):
                 info_obj = object.objectManager.getObjectByName(f"{obj.name}info_square")
                 info_obj.set_position(mouse_pos[0]-50, mouse_pos[1]-50)
                 info_obj.show()
+
+                Data_text = info_obj.getChildByName("data_text")
+                Data_text.set_text(f"CORRUPTION {100-game.regions[obj.name].get_percent()} %")
         
     else:
+
+        
         if obj.hover_quit:
             obj.set_scale(0.8)
+            game.regions[obj.name].reduce()
             if object.objectManager.hasObjectByName(f"{obj.name}info_square"):
                 info_obj = object.objectManager.getObjectByName(f"{obj.name}info_square")
                 info_obj.destroy()
@@ -243,9 +268,21 @@ def startGame(pygame):
     object.objectManager.add(start_button)
     object.objectManager.add(start_button)
     
+def map_update():
+    for region in game.regions:
+            if game.regions[region].changed_percent:
+                game.regions[region].changed_percent = False
+                obj = object.objectManager.getObjectByName(region)
+                
+                obj.set_hue(150-1.5*game.regions[region].get_percent())
+
     
 global tick_timer   
 tick_timer = 100000000000000
+
+
+
+
 
 def updateGame(pygame, dt):
     global game
@@ -256,6 +293,8 @@ def updateGame(pygame, dt):
     
     if(tick_timer >= 1/30 * 1000):
         object.objectManager.update(tick_timer)
+        map_update()
+        
         tick_timer = 0
     else:
         tick_timer += dt

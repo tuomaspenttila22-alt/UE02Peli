@@ -1,3 +1,4 @@
+
 class Region:
 
     def __init__(self, name):
@@ -5,11 +6,15 @@ class Region:
         self.name = name
         self.percent = 100
         
-        self.effectiveness = 1
+        self.effectiveness = 10
         self.foulness= 1
         self.infamy = 1
+        
+        #On totta jos äskettäin vaihdettiin prosentti
+        self.changed_percent = False
 
     def reduce(self):
+        self.changed_percent = True
         self.percent -= self.effectiveness
         return self.effectiveness*self.foulness
 
