@@ -30,10 +30,10 @@ class Game():
                         "Eam" : region.Region("Eam", "W"),
                         "Oce" : region.Region("Oce", "W"),}
         
-        self.upgrades = {"Demon" : upgrades.Upgrade("Demon"),
-                         "Internet" : upgrades.Upgrade("Internet"),
-                         "Education" : upgrades.Upgrade("Education"),
-                         "Persecution" : upgrades.Upgrade("Persecution"),}
+        self.upgrades = {"Demon" : upgrades.Upgrade("Demon", 400),
+                         "Internet" : upgrades.Upgrade("Internet", 400),
+                         "Education" : upgrades.Upgrade("Education", 400),
+                         "Persecution" : upgrades.Upgrade("Persecution", 400),}
         
 
 global game    

@@ -1,8 +1,18 @@
 class Upgrade:
 
-    def __init__(self, name):
-        self.name = name
-        self.level = 0
+    def __init__(self, name, base_cost):
+        self.name = name                    # Upgraden nimi
+        self.level = 0                      # Upgraden leveli
+        self.base_cost = base_cost          # Mitä päivittäminen levelille 1 maksaa. Myöhemmille kerrotaan numerolla
+
+    # Päivittää upgraden ja palauttaa käytettyjen sielujen määrän, jos sielut riittää ja leveli on maksimissaan 4. 
+    # Muuten palauttaa 0.
+    def level_up(self, soul):
+        if soul >= self.level*self.base_cost and self.level < 5:
+            self.level += 1
+            return self.level*self.base_cost
+        else:
+            return 0
 
     def get_name(self):
         return self.name
