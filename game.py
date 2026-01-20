@@ -7,7 +7,7 @@ import pygame
 import math
 import region
 import upgrades
-
+import random
 
 #PÄÄ PELI CLASSI
 class Game():
@@ -35,29 +35,45 @@ class Game():
                          "Education" : upgrades.Upgrade("Education", 400),
                          "Persecution" : upgrades.Upgrade("Persecution", 400),}
         
+        
+    def getGlobalCorruption(self):
+        total = 0
+        for region in self.regions:
+            total += self.regions[region].get_percent()
+        return round(100 - total / len(self.regions),2)
+
 
 global game    
 global mouse_pos
         
-def Soul_Count_Update(obj):
+def Soul_Count_Update(obj, dt):
     obj.set_text(f"SOULS: {game.soul_count}")
     obj.set_color((0,40 + 40*math.sin(0.002 * obj.time_alive),255))
     obj.set_opacity(180+80*math.sin(0.002 * obj.time_alive))
     
-    game.soul_count += 1
+    
 
 def Region_Click(obj):
-    game.cliked_region = obj.name
+    if game.mouse_free == False:
+        game.cliked_region = obj.name
+    else:
+        game.game_state = f"REGION_INFO_STATE: {obj.name}"
+        game.mouse_free = False
+        backg = object.GameObject("Codex", assetLoader.images["CODEX_BACKG"], (0,0), None)
+        backg.center()
+        backg.scale(8)
+        
+        object.objectManager.add(backg)
 
-def Region_Update(obj):
+def Region_Update(obj, dt):
     
     if obj.is_hovered:
-        obj.set_scale(0.8 + min(obj.hover_time/4000,0.025))
-        if obj.hover_time/1000 >= 0.5:
+        obj.set_scale(3 + min(obj.hover_time/4000,0.01))
+        if obj.hover_time/1000 >= 0.5 and game.mouse_free:
             if not object.objectManager.hasObjectByName(f"{obj.name}info_square"):
                 Square_Icon = object.GameObject(name=f"{obj.name}info_square", surface=assetLoader.images["Square"], position =(0,0))
                 Square_Icon.hide()
-                Square_Icon.scale(5)
+                Square_Icon.scale(2)
                 Square_Icon.set_opacity(100)
                 
                 if obj.name == "Europe":
@@ -79,25 +95,25 @@ def Region_Update(obj):
                     
                 
                 Text = text.TextObject("info_text", content, presets.main_font, (255,255,255), (0,0), False)
-                Text.scale(0.2)
+                Text.scale(0.50)
                 
                 Text_Data = text.TextObject("data_text", f"CORRUPTION", presets.main_font, (255,0,20), (0,0), False)
                 Square_Icon.add_child(Text_Data)
-                Text_Data.scale(0.020)
+                Text_Data.scale(0.13)
                 Text_Data.center()
-                Text_Data.move(-55,-30)
+                Text_Data.move(-45,-30)
                 
                 Text_Infamy = text.TextObject("infamy_text", f"INFAMY", presets.main_font, (214, 214, 34), (0,0), False)
                 Square_Icon.add_child(Text_Infamy)
-                Text_Infamy.scale(0.020)
+                Text_Infamy.scale(0.13)
                 Text_Infamy.center()
-                Text_Infamy.move(-55,5)
+                Text_Infamy.move(-45,5)
                 
                 Pent_Icon = object.GameObject("Pentagram", assetLoader.images["allah"], (0,0), None)
                 Square_Icon.add_child(Pent_Icon)
-                Pent_Icon.scale(0.0045)
+                Pent_Icon.scale(0.02)
                 Pent_Icon.center()
-                Pent_Icon.move(-95,-35)
+                Pent_Icon.move(-91,-32)
                 
                 Square_Icon.add_child(Text)
                 Text.center()
@@ -105,25 +121,26 @@ def Region_Update(obj):
                 object.objectManager.add(Square_Icon)
             else:
                 info_obj = object.objectManager.getObjectByName(f"{obj.name}info_square")
-                info_obj.set_position(mouse_pos[0]-50, mouse_pos[1]-50)
+                info_obj.set_position(mouse_pos[0]-55, mouse_pos[1]-10)
                 info_obj.show()
 
                 Data_text = info_obj.getChildByName("data_text")
-                Data_text.set_text(f"CORRUPTION {100-game.regions[obj.name].get_percent()} %")
+                Data_text.set_text(f"CORRUPTION {round(100-game.regions[obj.name].get_percent())} %")
                 
                 Data_text = info_obj.getChildByName("infamy_text")
-                Data_text.set_text(f"INFAMY {game.regions[obj.name].get_infamy()} %")
+                Data_text.set_text(f"INFAMY {round(game.regions[obj.name].get_infamy())} %")
         
     else:
-
-        
+        obj.base_scale = 3
         if obj.hover_quit:
-            obj.set_scale(0.8)
+            obj.set_scale(3)
             
             if object.objectManager.hasObjectByName(f"{obj.name}info_square"):
                 info_obj = object.objectManager.getObjectByName(f"{obj.name}info_square")
                 info_obj.destroy()
-        
+ 
+def Global_Corruption_Text_Update(obj, dt):
+    obj.set_text(f"GLOBAL CORRUPTION: {game.getGlobalCorruption()}%")       
 
 
 def Start_Pressed(obj):
@@ -155,8 +172,27 @@ def Start_Pressed(obj):
     
     object.objectManager.add(Soul_Count)
     
+    Corruption_meter = object.GameObject("Corruption_Meter", assetLoader.images["corruption"], (200,0))
+    Corruption_meter.scale(0.5)
+    Corruption_meter.center()
+    Corruption_meter.move(0,-350)
+    
+    Corruption_Text  = text.TextObject("Corruption_Text", "", presets.main_font, (255,10,0), (0,0))
+    Corruption_Text.set_text(f"GLOBAL CORRUPTION: {game.getGlobalCorruption()}%")
+    Corruption_Text.updateLoop = Global_Corruption_Text_Update
+    
+    
+    Corruption_meter.add_child(Corruption_Text)
+    
+    Corruption_Text.scale(2.5)
+    Corruption_Text.center()
+    Corruption_Text.move(210,-5)
+    
+    object.objectManager.add(Corruption_meter)
+    
+    
     Europe_Icon = button.Button(name="Europe",
-    surface=assetLoader.images["eur"],
+    surface=assetLoader.images["EUR2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -167,7 +203,7 @@ def Start_Pressed(obj):
     Europe_Icon.center()
     
     Ru_Icon = button.Button(name="Ru",
-    surface=assetLoader.images["ru"],
+    surface=assetLoader.images["RU2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -178,7 +214,7 @@ def Start_Pressed(obj):
     Ru_Icon.updateLoop = Region_Update
     
     Asia_Icon = button.Button(name="Asia",
-    surface=assetLoader.images["asia"],
+    surface=assetLoader.images["ASIA2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -189,7 +225,7 @@ def Start_Pressed(obj):
     Asia_Icon.updateLoop = Region_Update
     
     Islam_Icon = button.Button(name="Islam",
-    surface=assetLoader.images["islam"],
+    surface=assetLoader.images["ISLAM2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -200,7 +236,7 @@ def Start_Pressed(obj):
     Islam_Icon.updateLoop = Region_Update
     
     Oce_Icon = button.Button(name="Oce",
-    surface=assetLoader.images["oce"],
+    surface=assetLoader.images["OCE2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -211,7 +247,7 @@ def Start_Pressed(obj):
     Oce_Icon.updateLoop = Region_Update
     
     Eam_Icon = button.Button(name="Eam",
-    surface=assetLoader.images["eam"],
+    surface=assetLoader.images["EAM2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -222,7 +258,7 @@ def Start_Pressed(obj):
     Eam_Icon.updateLoop = Region_Update
     
     Eafr_Icon = button.Button(name="Eafr",
-    surface=assetLoader.images["eafr"],
+    surface=assetLoader.images["AFR2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -233,7 +269,7 @@ def Start_Pressed(obj):
     Eafr_Icon.updateLoop = Region_Update
     
     Pam_Icon = button.Button(name="Pam",
-    surface=assetLoader.images["pam"],
+    surface=assetLoader.images["PAM2"],
     position=(presets.VIRTUAL_WIDTH/2-100,presets.VIRTUAL_HEIGHT/2 ),
     on_click=Region_Click,
     base_scale=0.8,
@@ -252,8 +288,20 @@ def Start_Pressed(obj):
     object.objectManager.add(Eam_Icon)
     object.objectManager.add(Eafr_Icon)
     object.objectManager.add(Pam_Icon)
+   
+def Dem_Temple_Update(obj, dt):
     
-def Dem_Temple_Start(obj):
+    if obj.time_alive >= 3000:
+        obj.time_alive = 0
+        my_region = game.regions[obj.name[15:]]
+    
+        game.soul_count += my_region.reduce()
+        my_region.infamy += my_region.foulness * 1/3
+   
+   
+   
+ 
+def Dem_Temple_Start(obj, dt):
     obj.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
     
     if game.cliked_region != None:
@@ -261,7 +309,7 @@ def Dem_Temple_Start(obj):
         print(f"Created temple in {game.cliked_region}")
         game.cliked_region = None
         game.mouse_free = True
-        obj.updateLoop = None
+        obj.updateLoop = Dem_Temple_Update
     
     
     
@@ -330,6 +378,32 @@ def inputEvent(event):
             Temple.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
             
             object.objectManager.add(Temple)
+            
+        if event.key == pygame.K_ESCAPE and "REGION_INFO_STATE:" in game.game_state:
+            game.game_state = "game"
+            game.mouse_free = True
+            
+            codex = object.objectManager.getObjectByName("Codex")
+            codex.destroy()
+            
+        if event.key == pygame.K_q and game.mouse_free:
+            game.game_state = "shop"
+            game.mouse_free = False
+            
+            shop_backg = object.GameObject("shop_backg", assetLoader.images["shop_backg"], (0,0))
+            shop_backg.scale(6.7)
+            shop_backg.center()
+            
+            object.objectManager.add(shop_backg)
+            
+        if event.key == pygame.K_ESCAPE and game.game_state == "shop":
+            game.game_state = "game"
+            game.mouse_free = True
+            
+            shop = object.objectManager.getObjectByName("shop_backg")
+            shop.destroy()
+            
+            
 
 
 
@@ -340,26 +414,51 @@ def updateGame(pygame, dt):
     
     mouse_pos = presets.get_mouse_pos_virtual(pygame.display.get_surface())
     
-    if(tick_timer >= 1/30 * 1000):
+    if(tick_timer >= 1/60 * 1000):  #Game update 60 per sec
         object.objectManager.update(tick_timer)
+        update_region_stats()
         map_update()
         
         tick_timer = 0
     else:
         tick_timer += dt
 
+random.seed()
+
 def update_region_stats():
 
-    for region in Game.regions:
-        if region.get_type() == "SE":           #Asia ja Islam
-            region.effectiveness = 1 + Game.upgrades("Internet") + Game.upgrades("Persecution")
-            region.foulness = 1 + Game.upgrades("Demon") + Game.upgrades("Persecution")
-        elif region.get_type == "W":            #Europe, Ru, Eafr, Pam, Eam ja Oce
-            region.effectiveness = 1 + Game.upgrades("Internet") + Game.upgrades("Education")
-            region.foulness = 1 + Game.upgrades("Demon") + Game.upgrades("Education")
+    for region in game.regions:
+        if game.regions[region].get_type() == "SE":           #Asia ja Islam
+            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level() + game.upgrades["Persecution"].get_level()
+            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level() + game.upgrades["Persecution"].get_level()
+            
+        elif game.regions[region].get_type == "W":            #Europe, Ru, Eafr, Pam, Eam ja Oce
+            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level() + game.upgrades["Education"].get_level()
+            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level() + game.upgrades["Education"].get_level()
         else:                                   #Varalta ettei peli hajoa jos unohtu laittaa type
-            region.effectiveness = 1 + Game.upgrades("Internet")
-            region.foulness = 1 + Game.upgrades("Demon")
+            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level()
+            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level()
+            
+        #Kirkko random spawn
+        
+        if game.regions[region].percent != 100:
+            if random.random() >= 1-game.regions[region].infamy/1000:
+                print("added church")
+                church = object.GameObject("Holy_Church", assetLoader.images["Holy_Church"], (0,0))
+                
+                region_obj = object.objectManager.getObjectByName(region)
+                object.objectManager.add(church)
+                
+                church.scale(0.1)
+                church.center()
+                church.move(random.randint(-400,400),random.randint(-400,400))
+                while not church.collides_with_mask(region_obj):
+                    church.center()
+                    church.move(random.randint(-400,400),random.randint(-400,400))
+                church.scale(10)
+                    
+            
+        
     
     
     

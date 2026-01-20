@@ -1,6 +1,7 @@
 import object
+import math
 
-def renderScreen(pygame, game_surface, screen):
+def renderScreen(pygame, game_surface, screen, clock):
     game_surface.fill((10, 10, 10))  # background
 
     object.objectManager.draw(game_surface)

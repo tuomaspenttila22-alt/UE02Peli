@@ -7,7 +7,7 @@ class Region:
         self.type = type
         self.percent = 100
         
-        self.effectiveness = 10
+        self.effectiveness = 1
         self.foulness= 1
         self.infamy = 0
         
@@ -15,9 +15,14 @@ class Region:
         self.changed_percent = False
 
     def reduce(self):
-        self.changed_percent = True
-        self.percent -= self.effectiveness
-        return self.effectiveness*self.foulness
+        
+        
+        self.percent -= self.effectiveness * 0.2
+        if self.percent >= 100:
+            self.percent = 100
+        else:
+            self.changed_percent = True
+        return round(self.effectiveness*self.foulness*1.5)
 
     def get_name(self):
         return self.name

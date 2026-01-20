@@ -2,7 +2,7 @@ class Upgrade:
 
     def __init__(self, name, base_cost):
         self.name = name                    # Upgraden nimi
-        self.level = 0                      # Upgraden leveli
+        self.level = 1                      # Upgraden leveli
         self.base_cost = base_cost          # Mitä päivittäminen levelille 1 maksaa. Myöhemmille kerrotaan numerolla
 
     # Päivittää upgraden ja palauttaa käytettyjen sielujen määrän, jos sielut riittää ja leveli on maksimissaan 4. 

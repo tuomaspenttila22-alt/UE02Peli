@@ -89,7 +89,7 @@ class GameObject:
     def update(self, dt):
         self.time_alive += dt
         if self.updateLoop:
-            self.updateLoop(self)
+            self.updateLoop(self, dt)
         
         self._update_world_position()
         for child in self.children:
@@ -141,6 +141,26 @@ class GameObject:
 
     def collides_with(self, other):
         return self.rect.colliderect(other.rect)
+    
+    def collides_with_mask(self, other):
+        """
+        Pixel-perfect collision check using masks.
+        Returns True if this object overlaps another on opaque pixels.
+        """
+        # Quick reject
+        if not self.rect.colliderect(other.rect):
+            return False
+
+        # Both objects must have masks
+        if not hasattr(self, "mask") or not hasattr(other, "mask"):
+            return False
+
+        # Offset between the two masks
+        offset_x = other.rect.x - self.rect.x
+        offset_y = other.rect.y - self.rect.y
+
+        overlap = self.mask.overlap(other.mask, (offset_x, offset_y))
+        return overlap is not None
     
     def set_scale(self, factor):
         self.scale_factor = max(0.01, factor)

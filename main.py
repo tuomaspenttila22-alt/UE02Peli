@@ -62,7 +62,7 @@ while running:
     game.updateGame(pygame, clock.get_time())
     
     # 3. Draw
-    renderer.renderScreen(pygame, game_surface, screen )
+    renderer.renderScreen(pygame, game_surface, screen, clock.get_time())
 
     # 4. Timing
     clock.tick(60)
