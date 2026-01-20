@@ -279,6 +279,12 @@ class ObjectManager:
             if obj.name == name:
                 return obj
         return None
+    def getObjectsListByName(self, name):
+        list = []
+        for obj in self.objects:
+            if name in obj.name :
+                list.append(obj)
+        return list
     
     def hasObjectByName(self, name):
         for obj in self.objects:

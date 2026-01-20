@@ -140,7 +140,10 @@ def Region_Update(obj, dt):
                 info_obj.destroy()
  
 def Global_Corruption_Text_Update(obj, dt):
-    obj.set_text(f"GLOBAL CORRUPTION: {game.getGlobalCorruption()}%")       
+    obj.set_text(f"GLOBAL CORRUPTION: {game.getGlobalCorruption()}%")
+    obj.set_color((100 + 20*math.sin(0.002 * obj.time_alive),10,40))
+    obj.set_opacity(180+10*math.sin(0.002 * obj.time_alive))
+    
 
 
 def Start_Pressed(obj):
@@ -295,9 +298,8 @@ def Dem_Temple_Update(obj, dt):
         obj.time_alive = 0
         my_region = game.regions[obj.name[15:]]
     
-        game.soul_count += my_region.reduce()
-        my_region.infamy += my_region.foulness * 1/3
-   
+        game.soul_count += my_region.reduce() 
+        my_region.add_infamy(1/6)
    
    
  
@@ -311,9 +313,24 @@ def Dem_Temple_Start(obj, dt):
         game.mouse_free = True
         obj.updateLoop = Dem_Temple_Update
     
+
+def Hellfire_Update(obj, dt):
+    obj.set_opacity(max(0,-0.7*(obj.time_alive/10)**2+obj.time_alive*3))
     
+    if(obj.opacity == 0):
+        obj.destroy()
+        
+    for church in object.objectManager.getObjectsListByName("Holy_Church"):
+        if obj.collides_with(church):
+            church.destroy()
+
+def Church_Update(obj, dt):
+    if obj.time_alive >= 3000:
+        obj.time_alive = 0
+        my_region = game.regions[obj.name[11:]]
     
-    
+        my_region.cure()
+        
     
     
     
@@ -329,9 +346,10 @@ def startGame(pygame):
     base_scale=4)
     start_button.center()
     
-    Jesus_art = object.GameObject("JesusArt",surface=assetLoader.images["Jesus"],position=(0,0 ) )
-    Jesus_art.set_scale(0.25)
+    Jesus_art = object.GameObject("JesusArt",surface=assetLoader.images["game_main_title_pic2"],position=(0,0 ) )
+    Jesus_art.set_scale(0.465)
     Jesus_art.center()
+    Jesus_art.move(0,-40)
     
     score_text = text.TextObject(
         name="score",
@@ -364,8 +382,7 @@ def map_update():
                 obj.set_hue(150-1.5*game.regions[region].get_percent())
 
     
-global tick_timer   
-tick_timer = 100000000000000
+
 
 def inputEvent(event):
     if event.type == pygame.KEYDOWN:
@@ -396,6 +413,13 @@ def inputEvent(event):
             
             object.objectManager.add(shop_backg)
             
+            Demonic = object.GameObject("Demonic_Upgrade", assetLoader.images["demonic_p"], (0,0), None)
+            Demonic.scale(0.1)
+            
+            shop_backg.add_child(Demonic)
+            
+            
+            
         if event.key == pygame.K_ESCAPE and game.game_state == "shop":
             game.game_state = "game"
             game.mouse_free = True
@@ -403,22 +427,42 @@ def inputEvent(event):
             shop = object.objectManager.getObjectByName("shop_backg")
             shop.destroy()
             
+    #Hellfire
+        
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and game.soul_count >= 20:
+        game.soul_count -= 20
+        hellfire = object.GameObject("Hellfire", assetLoader.images["hellfire"],(0,0),Hellfire_Update)
+        hellfire.scale(1)
+        hellfire.set_position(mouse_pos[0]-30,mouse_pos[1]-30)
+        hellfire.set_opacity(0)
+        object.objectManager.add(hellfire)
+            
             
 
+global tick_timer   
+tick_timer = 100000000000000
 
+global map_upd_timer
+map_upd_timer = 10000000
 
 def updateGame(pygame, dt):
     global game
     global mouse_pos
     global tick_timer
+    global map_upd_timer
     
     mouse_pos = presets.get_mouse_pos_virtual(pygame.display.get_surface())
     
-    if(tick_timer >= 1/60 * 1000):  #Game update 60 per sec
+    if(map_upd_timer >= 1/1 * 1000):  #Map update 1 per sec
+        map_update()
+        map_upd_timer = 0
+    else:
+        map_upd_timer += dt
+    
+    
+    if(tick_timer >= 1/10 * 1000):  #Game update 10 per sec
         object.objectManager.update(tick_timer)
         update_region_stats()
-        map_update()
-        
         tick_timer = 0
     else:
         tick_timer += dt
@@ -438,13 +482,12 @@ def update_region_stats():
         else:                                   #Varalta ettei peli hajoa jos unohtu laittaa type
             game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level()
             game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level()
-            
         #Kirkko random spawn
         
         if game.regions[region].percent != 100:
-            if random.random() >= 1-game.regions[region].infamy/1000:
+            if random.random() >= 1-math.log(20*game.regions[region].infamy+1)/600:
                 print("added church")
-                church = object.GameObject("Holy_Church", assetLoader.images["Holy_Church"], (0,0))
+                church = object.GameObject(f"Holy_Church{region}", assetLoader.images["Holy_Church"], (0,0), Church_Update)
                 
                 region_obj = object.objectManager.getObjectByName(region)
                 object.objectManager.add(church)

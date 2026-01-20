@@ -1,8 +1,9 @@
 import object
 import math
+import game
 
 def renderScreen(pygame, game_surface, screen, clock):
-    game_surface.fill((10, 10, 10))  # background
+    game_surface.fill((10+game.game.getGlobalCorruption()*245/100, 0, 0))  # background
 
     object.objectManager.draw(game_surface)
         

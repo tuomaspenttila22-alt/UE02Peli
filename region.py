@@ -18,12 +18,26 @@ class Region:
         
         
         self.percent -= self.effectiveness * 0.2
-        if self.percent >= 100:
-            self.percent = 100
+        if self.percent <= 0:
+            self.percent = 0
         else:
             self.changed_percent = True
         return round(self.effectiveness*self.foulness*1.5)
 
+    def cure(self):
+        
+        self.percent += 0.2
+        if self.percent >= 100:
+            self.percent = 100
+        else:
+            self.changed_percent = True
+
+    def add_infamy(self, factor):
+        self.infamy += factor * self.foulness
+        
+        if self.infamy >= 100:
+            self.infamy = 100
+    
     def get_name(self):
         return self.name
     
