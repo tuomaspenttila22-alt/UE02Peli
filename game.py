@@ -8,6 +8,7 @@ import math
 import region
 import upgrades
 import random
+import news
 
 #PÄÄ PELI CLASSI
 class Game():
@@ -24,7 +25,10 @@ class Game():
         self.time_left = 365
         self.time_left_raw = playtime_in_mins * 60 * 1000  
         
-        self.soul_count = 100
+        self.first_church = False
+        self.church_region = None
+        
+        self.soul_count = 1000000
                 
         self.regions = {"Europe" : region.Region("Europe", "W"),
                         "Ru" : region.Region("Ru", "W"),
@@ -331,13 +335,18 @@ def Start_Pressed(obj):
     object.objectManager.add(Pam_Icon)
    
 def Dem_Temple_Update(obj, dt):
+    if game.game_state == "game":
+        if obj.time_alive >= 3000:
+            obj.time_alive = 0
+            my_region = game.regions[obj.name[15:]]
     
-    if obj.time_alive >= 3000:
-        obj.time_alive = 0
-        my_region = game.regions[obj.name[15:]]
-    
-        game.soul_count += my_region.reduce() 
-        my_region.add_infamy(1/6)
+            if "Demonic" in obj.name:
+                game.soul_count += my_region.reduce(1)
+            else:
+                game.soul_count += my_region.reduce(13)
+            
+            
+            my_region.add_infamy(1/6)
    
    
  
@@ -345,7 +354,7 @@ def Dem_Temple_Start(obj, dt):
     obj.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
     
     if game.cliked_region != None:
-        obj.name = f"Demonic_Temple_{game.cliked_region}"
+        obj.name = f"{obj.name}_{game.cliked_region}"
         print(f"Created temple in {game.cliked_region}")
         game.cliked_region = None
         game.mouse_free = True
@@ -363,12 +372,25 @@ def Hellfire_Update(obj, dt):
             church.destroy()
 
 def Church_Update(obj, dt):
-    if obj.time_alive >= 3000:
-        obj.time_alive = 0
-        my_region = game.regions[obj.name[11:]]
+    if game.game_state == "game":
+        if obj.time_alive >= 3000:
+            obj.time_alive = 0
+            my_region = game.regions[obj.name[11:]]
     
-        my_region.cure()
+            my_region.cure()
         
+def Upgrade_Click(obj):
+    game.soul_count -= game.upgrades[obj.name].level_up(game.soul_count)
+    
+    cost = game.upgrades[obj.name].get_cost()
+    info = obj.getChildByName("INFO")
+    
+    info.set_text(f"UPGRADE\\{cost} souls")
+    if game.upgrades[obj.name].level == 4:
+        info.set_text("MAX LEVEL")
+        
+
+
 global tick_timer   
 tick_timer = 100000000000000
 
@@ -434,12 +456,23 @@ def map_update():
 
 def inputEvent(event):
     if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_e and game.mouse_free and game.soul_count >= 100:
+        if event.key == pygame.K_1 and game.mouse_free and game.soul_count >= 100:
             game.soul_count -= 100
             print("Added Tempke")
             game.mouse_free = False
             Temple = object.GameObject("Demonic_Temple", assetLoader.images["Demonic_Temple"], (0,0), Dem_Temple_Start)
             Temple.scale(1)
+            Temple.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
+            
+            object.objectManager.add(Temple)
+
+        if event.key == pygame.K_2 and game.mouse_free and game.soul_count >= 100:
+            game.soul_count -= 100
+            print("Added Huge Temple")
+            game.mouse_free = False
+            Temple = object.GameObject("Hellish_Temple", assetLoader.images["Demonic_Temple"], (0,0), Dem_Temple_Start)
+            Temple.scale(2)
+            Temple.set_hue(100)
             Temple.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
             
             object.objectManager.add(Temple)
@@ -464,7 +497,69 @@ def inputEvent(event):
             Demonic = object.GameObject("Demonic_Upgrade", assetLoader.images["demonic_p"], (0,0), None)
             Demonic.scale(0.1)
             
+            
             shop_backg.add_child(Demonic)
+            Demonic.center()
+            Demonic.move(-250,0)
+            
+            Demonic_info = text.TextObject("INFO", "Demonic Activity:\\Increases foulness globally", presets.main_font, (255,255,255))
+            
+            Demonic.add_child(Demonic_info)
+            Demonic_info.scale(0.77)
+            Demonic_info.center()
+            Demonic_info.move(40,-180)
+            
+            Demonic_upg = button.Button("Demon", assetLoader.images["Play_Again"], (0,0), Upgrade_Click, 2.8, False, False)
+            
+            Demonic_upg.center()
+            Demonic_upg.move(-245,200)
+            
+            cost = game.upgrades["Demon"].get_cost()
+            Demonic_upg_text = text.TextObject("INFO", f"UPGRADE\\{cost} souls", presets.main_font, (255,255,255))
+            if game.upgrades["Demon"].level == 4:
+                Demonic_upg_text.set_text("MAX LEVEL")
+            
+            Demonic_upg.add_child(Demonic_upg_text)
+            
+            Demonic_upg_text.scale(0.18)
+            Demonic_upg_text.center()
+            Demonic_upg_text.move(0,0)
+            
+            object.objectManager.add(Demonic_upg)
+            
+            
+            Internet = object.GameObject("Internet_Upgrade", assetLoader.images["internet_a"], (0,0), None)
+            Internet.scale(0.1)
+            
+            
+            shop_backg.add_child(Internet)
+            Internet.center()
+            Internet.move(-100,0)
+            
+            Internet_info = text.TextObject("INFO", "Interner Acces:\\Increases effectivness globally", presets.main_font, (255,255,255))
+            
+            Internet.add_child(Internet_info)
+            Internet_info.scale(0.77)
+            Internet_info.center()
+            Internet_info.move(60,-180)
+            
+            Internet_upg = button.Button("Internet", assetLoader.images["Play_Again"], (0,0), Upgrade_Click, 2.8, False, False)
+            
+            Internet_upg.center()
+            Internet_upg.move(-100,200)
+            
+            cost = game.upgrades["Internet"].get_cost()
+            Internet_upg_text = text.TextObject("INFO", f"UPGRADE\\{cost} souls", presets.main_font, (255,255,255))
+            if game.upgrades["Internet"].level == 4:
+                Internet_upg_text.set_text("MAX LEVEL")
+            
+            Internet_upg.add_child(Internet_upg_text)
+            
+            Internet_upg_text.scale(0.18)
+            Internet_upg_text.center()
+            Internet_upg_text.move(0,0)
+            
+            object.objectManager.add(Internet_upg)
             
             
             
@@ -474,6 +569,19 @@ def inputEvent(event):
             
             shop = object.objectManager.getObjectByName("shop_backg")
             shop.destroy()
+            
+            demon = object.objectManager.getObjectByName("Demon")
+            demon.destroy()
+            
+            inter =object.objectManager.getObjectByName("Internet")
+            inter.destroy()
+            
+        if event.key == pygame.K_ESCAPE and game.game_state == "news":
+            game.game_state = "game"
+            game.mouse_free = True
+            
+            news = object.objectManager.getObjectByName("News")
+            news.destroy()
             
     #Hellfire
         
@@ -497,7 +605,8 @@ def updateGame(pygame, dt):
     
     mouse_pos = presets.get_mouse_pos_virtual(pygame.display.get_surface())
     
-    game.updateTime(dt)
+    if game.game_state == "game":
+        game.updateTime(dt)
     
     if(map_upd_timer >= 3/1 * 1000) and game.game_state != "LOSS" and game.game_state != "WIN":  #Map update 0.5 per sec
         map_update()
@@ -507,6 +616,7 @@ def updateGame(pygame, dt):
     
     
     if(tick_timer >= 1/10 * 1000):  #Game update 10 per sec
+        news.UpdateNewsCycle(game)
         object.objectManager.update(tick_timer)
         if game.game_state != "LOSS" and game.game_state != "WIN":
             update_region_stats()
@@ -517,7 +627,7 @@ def updateGame(pygame, dt):
       
     #Win Check
     
-    if game.getGlobalCorruption() >= 10 and game.game_state != "WIN" and game.game_state != "LOSS":
+    if game.getGlobalCorruption() >= 100 and game.game_state != "WIN" and game.game_state != "LOSS":
         game.mouse_free = False
         game.game_state = "WIN"
         object.objectManager.clearObjects()
@@ -588,8 +698,12 @@ def update_region_stats():
             game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level()
         #Kirkko random spawn
         
-        if game.regions[region].percent != 100:
+        if game.regions[region].percent != 100 and game.game_state == "game":
             if random.random() >= 1-math.log(20*game.regions[region].infamy+1)/600:
+                
+                if game.first_church == False:
+                    game.first_church = True
+                game.church_region = region
                 print("added church")
                 church = object.GameObject(f"Holy_Church{region}", assetLoader.images["Holy_Church"], (0,0), Church_Update)
                 

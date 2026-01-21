@@ -14,15 +14,15 @@ class Region:
         #On totta jos äskettäin vaihdettiin prosentti
         self.changed_percent = False
 
-    def reduce(self):
+    def reduce(self, factor):
         
         
-        self.percent -= self.effectiveness * 0.2 * 100
+        self.percent -= self.effectiveness * 0.2 * factor
         if self.percent <= 0:
             self.percent = 0
         else:
             self.changed_percent = True
-        return round(self.effectiveness*self.foulness*1.5*100)
+        return round(self.effectiveness*self.foulness*10*factor)
 
     def cure(self):
         

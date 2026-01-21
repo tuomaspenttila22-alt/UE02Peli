@@ -62,6 +62,9 @@ class GameObject:
             self.children.remove(child)
             child.parent = None
     
+    def create_rect(self):
+        self.rect = self.surface.get_rect(topleft=position)
+    
     def _apply_transform(self):
         center = self.rect.center
 
