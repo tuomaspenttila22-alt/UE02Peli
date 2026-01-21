@@ -8,7 +8,7 @@ class Upgrade:
     # Päivittää upgraden ja palauttaa käytettyjen sielujen määrän, jos sielut riittää ja leveli on maksimissaan 4. 
     # Muuten palauttaa 0.
     def level_up(self, soul):
-        if soul >= self.level*self.base_cost and self.level < 4:
+        if soul >= (self.level+1)*self.base_cost and self.level < 4:
             self.level += 1
             return self.level*self.base_cost
         else:

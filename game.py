@@ -28,7 +28,7 @@ class Game():
         self.first_church = False
         self.church_region = None
         
-        self.soul_count = 1000000
+        self.soul_count = 100
                 
         self.regions = {"Europe" : region.Region("Europe", "W"),
                         "Ru" : region.Region("Ru", "W"),
@@ -347,6 +347,8 @@ def Dem_Temple_Update(obj, dt):
             
             
             my_region.add_infamy(1/6)
+    else:
+        obj.time_alive -= dt
    
    
  
@@ -378,14 +380,17 @@ def Church_Update(obj, dt):
             my_region = game.regions[obj.name[11:]]
     
             my_region.cure()
+    else:
+        obj.time_alive -= dt
         
 def Upgrade_Click(obj):
     game.soul_count -= game.upgrades[obj.name].level_up(game.soul_count)
     
     cost = game.upgrades[obj.name].get_cost()
+    lv = game.upgrades[obj.name].get_level()
     info = obj.getChildByName("INFO")
     
-    info.set_text(f"UPGRADE\\{cost} souls")
+    info.set_text(f"Level {lv}\\{cost} souls")
     if game.upgrades[obj.name].level == 4:
         info.set_text("MAX LEVEL")
         
@@ -466,8 +471,8 @@ def inputEvent(event):
             
             object.objectManager.add(Temple)
 
-        if event.key == pygame.K_2 and game.mouse_free and game.soul_count >= 100:
-            game.soul_count -= 100
+        if event.key == pygame.K_2 and game.mouse_free and game.soul_count >= 1000:
+            game.soul_count -= 1000
             print("Added Huge Temple")
             game.mouse_free = False
             Temple = object.GameObject("Hellish_Temple", assetLoader.images["Demonic_Temple"], (0,0), Dem_Temple_Start)
@@ -502,7 +507,7 @@ def inputEvent(event):
             Demonic.center()
             Demonic.move(-250,0)
             
-            Demonic_info = text.TextObject("INFO", "Demonic Activity:\\Increases foulness globally", presets.main_font, (255,255,255))
+            Demonic_info = text.TextObject("INFO", "Demonic Activity:\\Increases foulness\\globally", presets.main_font, (255,255,255))
             
             Demonic.add_child(Demonic_info)
             Demonic_info.scale(0.77)
@@ -515,7 +520,8 @@ def inputEvent(event):
             Demonic_upg.move(-245,200)
             
             cost = game.upgrades["Demon"].get_cost()
-            Demonic_upg_text = text.TextObject("INFO", f"UPGRADE\\{cost} souls", presets.main_font, (255,255,255))
+            lv = game.upgrades["Demon"].get_level()
+            Demonic_upg_text = text.TextObject("INFO", f"Level {lv}\\{cost} souls", presets.main_font, (255,255,255))
             if game.upgrades["Demon"].level == 4:
                 Demonic_upg_text.set_text("MAX LEVEL")
             
@@ -536,7 +542,7 @@ def inputEvent(event):
             Internet.center()
             Internet.move(-100,0)
             
-            Internet_info = text.TextObject("INFO", "Interner Acces:\\Increases effectivness globally", presets.main_font, (255,255,255))
+            Internet_info = text.TextObject("INFO", "Interner Acces:\\Increases effectivness\\globally", presets.main_font, (255,255,255))
             
             Internet.add_child(Internet_info)
             Internet_info.scale(0.77)
@@ -549,7 +555,8 @@ def inputEvent(event):
             Internet_upg.move(-100,200)
             
             cost = game.upgrades["Internet"].get_cost()
-            Internet_upg_text = text.TextObject("INFO", f"UPGRADE\\{cost} souls", presets.main_font, (255,255,255))
+            lv = game.upgrades["Internet"].get_level()
+            Internet_upg_text = text.TextObject("INFO", f"Level {lv}\\{cost} souls", presets.main_font, (255,255,255))
             if game.upgrades["Internet"].level == 4:
                 Internet_upg_text.set_text("MAX LEVEL")
             
@@ -560,6 +567,74 @@ def inputEvent(event):
             Internet_upg_text.move(0,0)
             
             object.objectManager.add(Internet_upg)
+            
+            Material = object.GameObject("Material_Upgrade", assetLoader.images["Material"], (0,0), None)
+            Material.scale(0.1)
+            
+            
+            shop_backg.add_child(Material)
+            Material.center()
+            Material.move(45,0)
+            
+            Material_info = text.TextObject("INFO", "Material teachings:\\Increases effectivness\\and foulness", presets.main_font, (255,255,255))
+            
+            Material.add_child(Material_info)
+            Material_info.scale(0.77)
+            Material_info.center()
+            Material_info.move(60,-180)
+            
+            Material_upg = button.Button("Education", assetLoader.images["Play_Again"], (0,0), Upgrade_Click, 2.8, False, False)
+            
+            Material_upg.center()
+            Material_upg.move(45,200)
+            
+            cost = game.upgrades["Education"].get_cost()
+            lv = game.upgrades["Education"].get_level()
+            Material_upg_text = text.TextObject("INFO", f"Level {lv}\\{cost} souls", presets.main_font, (255,255,255))
+            if game.upgrades["Education"].level == 4:
+                Material_upg_text.set_text("MAX LEVEL")
+            
+            Material_upg.add_child(Material_upg_text)
+            
+            Material_upg_text.scale(0.18)
+            Material_upg_text.center()
+            Material_upg_text.move(0,0)
+            
+            object.objectManager.add(Material_upg)
+            
+            Persp = object.GameObject("Persp_Upgrade", assetLoader.images["Persecution"], (0,0), None)
+            Persp.scale(0.1)
+            
+            
+            shop_backg.add_child(Persp)
+            Persp.center()
+            Persp.move(190,0)
+            
+            Persp_info = text.TextObject("INFO", "Persecution:\\Increases effectivness\\and foulness", presets.main_font, (255,255,255))
+            
+            Persp.add_child(Persp_info)
+            Persp_info.scale(0.77)
+            Persp_info.center()
+            Persp_info.move(60,-180)
+            
+            Persp_upg = button.Button("Persecution", assetLoader.images["Play_Again"], (0,0), Upgrade_Click, 2.8, False, False)
+            
+            Persp_upg.center()
+            Persp_upg.move(190,200)
+            
+            cost = game.upgrades["Persecution"].get_cost()
+            lv = game.upgrades["Persecution"].get_level()
+            Persp_upg_text = text.TextObject("INFO", f"Level {lv}\\{cost} souls", presets.main_font, (255,255,255))
+            if game.upgrades["Persecution"].level == 4:
+                Persp_upg_text.set_text("MAX LEVEL")
+            
+            Persp_upg.add_child(Persp_upg_text)
+            
+            Persp_upg_text.scale(0.18)
+            Persp_upg_text.center()
+            Persp_upg_text.move(0,0)
+            
+            object.objectManager.add(Persp_upg)
             
             
             
@@ -575,6 +650,12 @@ def inputEvent(event):
             
             inter =object.objectManager.getObjectByName("Internet")
             inter.destroy()
+            
+            mater =object.objectManager.getObjectByName("Education")
+            mater.destroy()
+            
+            persp =object.objectManager.getObjectByName("Persecution")
+            persp.destroy()
             
         if event.key == pygame.K_ESCAPE and game.game_state == "news":
             game.game_state = "game"
@@ -614,10 +695,10 @@ def updateGame(pygame, dt):
     else:
         map_upd_timer += dt
     
+    object.objectManager.update(tick_timer)
+    news.UpdateNewsCycle(game)
     
     if(tick_timer >= 1/10 * 1000):  #Game update 10 per sec
-        news.UpdateNewsCycle(game)
-        object.objectManager.update(tick_timer)
         if game.game_state != "LOSS" and game.game_state != "WIN":
             update_region_stats()
         tick_timer = 0
@@ -636,15 +717,27 @@ def updateGame(pygame, dt):
         Satan.scale(0.3)
         Satan.center()
         
-        WinText = text.TextObject("Win_TEXT", "You corrupted the world, YOU WIN", presets.main_font, (250,0,50))
+        WinText = text.TextObject("Win_TEXT", "You corrupted the world, YOU WIN", presets.main_font, (255,255,255))
         
         Satan.add_child(WinText)
         WinText.scale(12)
         WinText.center()
         WinText.move(680,-200)
         
+        Play_Icon = button.Button("Play_Agin", assetLoader.images["Play_Again"], (0,0), Start_Pressed, base_scale=5)
+        
+        Play_Icon.center()
+        Play_Icon.move(0,200)
+        
+        Play_Agian = text.TextObject("PlayAgain", "TRY AGAIN?", presets.main_font, (250,0,50))
+        
+        Play_Icon.add_child(Play_Agian)
+        Play_Agian.scale(0.2)
+        Play_Agian.center()
+        Play_Agian.move(20,17)
+   
         object.objectManager.add(Satan)
-    
+        object.objectManager.add(Play_Icon)
         
     #Loss check
     if game.time_left_raw <= 0 and game.game_state != "start_screen" and game.game_state != "LOSS" and game.game_state != "WIN":
@@ -687,15 +780,15 @@ def update_region_stats():
 
     for region in game.regions:
         if game.regions[region].get_type() == "SE":           #Asia ja Islam
-            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level() + game.upgrades["Persecution"].get_level()
-            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level() + game.upgrades["Persecution"].get_level()
+            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level()/6 + game.upgrades["Persecution"].get_level()/6
+            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level()/6 + game.upgrades["Persecution"].get_level()/6
             
-        elif game.regions[region].get_type == "W":            #Europe, Ru, Eafr, Pam, Eam ja Oce
-            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level() + game.upgrades["Education"].get_level()
-            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level() + game.upgrades["Education"].get_level()
+        elif game.regions[region].get_type() == "W":            #Europe, Ru, Eafr, Pam, Eam ja Oce
+            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level()/6 + game.upgrades["Education"].get_level()/6
+            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level()/6 + game.upgrades["Education"].get_level()/6
         else:                                   #Varalta ettei peli hajoa jos unohtu laittaa type
-            game.regions[region].effectiveness = 1 + game.upgrades["Internet"].get_level()
-            game.regions[region].foulness = 1 + game.upgrades["Demon"].get_level()
+            game.regions[region].effectiveness =0
+            game.regions[region].foulness = 0
         #Kirkko random spawn
         
         if game.regions[region].percent != 100 and game.game_state == "game":

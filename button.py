@@ -66,7 +66,7 @@ class Button(object.GameObject):
         elif hovered:
             new_state = self.hover_surface
             if self.hover_anim:
-                self.set_scale(self.base_scale * (1.05+0.025*math.sin(self.hover_time*0.002)))
+                self.set_scale(self.base_scale * (1.05+0.025*math.sin(self.hover_time*0.0005)))
             self.is_hovered = True
             self.hover_time += dt
             

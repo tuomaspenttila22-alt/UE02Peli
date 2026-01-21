@@ -63,7 +63,7 @@ class GameObject:
             child.parent = None
     
     def create_rect(self):
-        self.rect = self.surface.get_rect(topleft=position)
+        self.rect = self.surface.get_rect(topleft=self.position)
     
     def _apply_transform(self):
         center = self.rect.center
