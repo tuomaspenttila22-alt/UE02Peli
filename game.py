@@ -13,11 +13,16 @@ import random
 class Game():
     def __init__(
         self,
-        game_state
+        game_state,
+        playtime_in_mins = 5
     ):
         self.game_state = game_state
         self.mouse_free = True
         self.cliked_region = None
+        
+        self.playtime_in_mins = playtime_in_mins
+        self.time_left = 365
+        self.time_left_raw = playtime_in_mins * 60 * 1000  
         
         self.soul_count = 100
                 
@@ -41,6 +46,14 @@ class Game():
         for region in self.regions:
             total += self.regions[region].get_percent()
         return round(100 - total / len(self.regions),2)
+    
+    def reset_timer(self):
+        self.time_left = 365
+        self.time_left_raw = self.playtime_in_mins * 60 * 1000  
+    
+    def updateTime(self, dt):
+        self.time_left_raw -= dt
+        self.time_left = round(365*self.time_left_raw/1000/60/self.playtime_in_mins)
 
 
 global game    
@@ -144,10 +157,15 @@ def Global_Corruption_Text_Update(obj, dt):
     obj.set_color((100 + 20*math.sin(0.002 * obj.time_alive),10,40))
     obj.set_opacity(180+10*math.sin(0.002 * obj.time_alive))
     
-
+def Time_Left_Update(obj, dt):
+    obj.set_text(f"TIME LEFT: {game.time_left} d")
+    obj.set_color((30,200+20*math.sin(0.002 * obj.time_alive),80))
+    obj.set_opacity(180+10*math.sin(0.002 * obj.time_alive))
 
 def Start_Pressed(obj):
-    
+    global game
+    game = Game("game")
+    game.reset_timer()
     object.objectManager.clearObjects()
     
     game.game_state = "game"
@@ -178,8 +196,9 @@ def Start_Pressed(obj):
     Corruption_meter = object.GameObject("Corruption_Meter", assetLoader.images["corruption"], (200,0))
     Corruption_meter.scale(0.5)
     Corruption_meter.center()
-    Corruption_meter.move(0,-350)
+    Corruption_meter.move(-20,-350)
     
+
     Corruption_Text  = text.TextObject("Corruption_Text", "", presets.main_font, (255,10,0), (0,0))
     Corruption_Text.set_text(f"GLOBAL CORRUPTION: {game.getGlobalCorruption()}%")
     Corruption_Text.updateLoop = Global_Corruption_Text_Update
@@ -192,6 +211,25 @@ def Start_Pressed(obj):
     Corruption_Text.move(210,-5)
     
     object.objectManager.add(Corruption_meter)
+    
+    Time_meter = object.GameObject("Time_meter", assetLoader.images["time"], (200,0))
+    Time_meter.scale(0.28)
+    Time_meter.center()
+    Time_meter.move(300,-350)
+    
+    Time_meter_text  = text.TextObject("Time_meter_text", "KAKAKA", presets.main_font, (255,10,0), (0,0))
+    Time_meter_text.set_text(f"TIME LEFT: {game.time_left} d")
+    Time_meter_text.updateLoop = Time_Left_Update
+    
+    
+    Time_meter.add_child(Time_meter_text)
+    
+    Time_meter_text.scale(5.5)
+    Time_meter_text.center()
+    Time_meter_text.move(170,10)
+    
+    object.objectManager.add(Time_meter)
+    
     
     
     Europe_Icon = button.Button(name="Europe",
@@ -331,13 +369,23 @@ def Church_Update(obj, dt):
     
         my_region.cure()
         
-    
+global tick_timer   
+tick_timer = 100000000000000
+
+global map_upd_timer
+map_upd_timer = 10000000   
     
     
 
 def startGame(pygame):
     global game
     game = Game("start_screen")
+    
+    global tick_timer   
+    tick_timer = 100000000000000
+
+    global map_upd_timer
+    map_upd_timer = 10000000   
     
     start_button = button.Button(name="start",
     surface=assetLoader.images["Apostasy_Logo"],
@@ -429,7 +477,7 @@ def inputEvent(event):
             
     #Hellfire
         
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and game.soul_count >= 20:
+    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and game.soul_count >= 20 and game.mouse_free:
         game.soul_count -= 20
         hellfire = object.GameObject("Hellfire", assetLoader.images["hellfire"],(0,0),Hellfire_Update)
         hellfire.scale(1)
@@ -439,11 +487,7 @@ def inputEvent(event):
             
             
 
-global tick_timer   
-tick_timer = 100000000000000
 
-global map_upd_timer
-map_upd_timer = 10000000
 
 def updateGame(pygame, dt):
     global game
@@ -453,7 +497,9 @@ def updateGame(pygame, dt):
     
     mouse_pos = presets.get_mouse_pos_virtual(pygame.display.get_surface())
     
-    if(map_upd_timer >= 1/1 * 1000):  #Map update 1 per sec
+    game.updateTime(dt)
+    
+    if(map_upd_timer >= 3/1 * 1000) and game.game_state != "LOSS" and game.game_state != "WIN":  #Map update 0.5 per sec
         map_update()
         map_upd_timer = 0
     else:
@@ -462,10 +508,68 @@ def updateGame(pygame, dt):
     
     if(tick_timer >= 1/10 * 1000):  #Game update 10 per sec
         object.objectManager.update(tick_timer)
-        update_region_stats()
+        if game.game_state != "LOSS" and game.game_state != "WIN":
+            update_region_stats()
         tick_timer = 0
     else:
         tick_timer += dt
+      
+      
+    #Win Check
+    
+    if game.getGlobalCorruption() >= 10 and game.game_state != "WIN" and game.game_state != "LOSS":
+        game.mouse_free = False
+        game.game_state = "WIN"
+        object.objectManager.clearObjects()
+        
+        Satan = object.GameObject("SATAN",assetLoader.images["game_main_title_pic2"],(0,0))
+        Satan.scale(0.3)
+        Satan.center()
+        
+        WinText = text.TextObject("Win_TEXT", "You corrupted the world, YOU WIN", presets.main_font, (250,0,50))
+        
+        Satan.add_child(WinText)
+        WinText.scale(12)
+        WinText.center()
+        WinText.move(680,-200)
+        
+        object.objectManager.add(Satan)
+    
+        
+    #Loss check
+    if game.time_left_raw <= 0 and game.game_state != "start_screen" and game.game_state != "LOSS" and game.game_state != "WIN":
+        game.mouse_free = False
+        game.game_state = "LOSS"
+        object.objectManager.clearObjects()
+        
+        Jesus = object.GameObject("Jesus",assetLoader.images["Jesus"],(0,0))
+        Jesus.scale(0.3)
+        Jesus.center()
+        
+        LossText = text.TextObject("LOSS_TEXT", "Jesus returned, YOU LOSE", presets.main_font, (0,200,50))
+        
+        Jesus.add_child(LossText)
+        LossText.scale(14)
+        LossText.center()
+        LossText.move(630,-200)
+        
+        
+        Play_Icon = button.Button("Play_Agin", assetLoader.images["Play_Again"], (0,0), Start_Pressed, base_scale=5)
+        
+        Play_Icon.center()
+        Play_Icon.move(0,200)
+        
+        Play_Agian = text.TextObject("PlayAgain", "TRY AGAIN?", presets.main_font, (250,0,50))
+        
+        Play_Icon.add_child(Play_Agian)
+        Play_Agian.scale(0.2)
+        Play_Agian.center()
+        Play_Agian.move(20,17)
+   
+        object.objectManager.add(Jesus)
+        object.objectManager.add(Play_Icon)
+            
+    
 
 random.seed()
 
