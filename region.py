@@ -22,7 +22,7 @@ class Region:
             self.percent = 0
         else:
             self.changed_percent = True
-        return round(self.effectiveness*self.foulness*10*factor)
+        return round(self.effectiveness*self.foulness*15*factor)
 
     def cure(self):
         

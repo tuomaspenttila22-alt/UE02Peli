@@ -9,6 +9,7 @@ import region
 import upgrades
 import random
 import news
+import codex
 
 #PÄÄ PELI CLASSI
 class Game():
@@ -37,7 +38,7 @@ class Game():
                         "Islam" : region.Region("Islam", "SE"),
                         "Pam" : region.Region("Pam", "W"),
                         "Eam" : region.Region("Eam", "W"),
-                        "Oce" : region.Region("Oce", "W"),}
+                        "Oce" : region.Region("Oce", "W")}
         
         self.upgrades = {"Demon" : upgrades.Upgrade("Demon", 400),
                          "Internet" : upgrades.Upgrade("Internet", 400),
@@ -79,6 +80,14 @@ def Region_Click(obj):
         backg = object.GameObject("Codex", assetLoader.images["CODEX_BACKG"], (0,0), None)
         backg.center()
         backg.scale(8)
+        
+        pent = object.GameObject("Pent", assetLoader.images["allah"], (0,0))
+        backg.add_child(pent)
+        pent.scale(0.005)
+        pent.center()
+        pent.move(-50,260)
+        
+        codex.CreateCodexText(backg, obj.name)
         
         object.objectManager.add(backg)
 
@@ -173,6 +182,13 @@ def Start_Pressed(obj):
     object.objectManager.clearObjects()
     
     game.game_state = "game"
+    
+    Hotbar = object.GameObject("Hot", assetLoader.images["Hotbar"], (0,0), None)
+    Hotbar.scale(1)
+    Hotbar.center()
+    Hotbar.move(-230,310)
+    
+    object.objectManager.add(Hotbar)
     
     Soul_Count = object.GameObject(name="soul_count", surface=assetLoader.images["soul_better"], position=(0,0))
     Soul_Count.scale(0.25)
