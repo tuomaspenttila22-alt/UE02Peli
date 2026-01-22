@@ -29,7 +29,8 @@ class Game():
         self.first_church = False
         self.church_region = None
         
-        self.soul_count = 100
+        self.soul_count = 15000000
+        self.game_time = 0
                 
         self.regions = {"Europe" : region.Region("Europe", "W"),
                         "Ru" : region.Region("Ru", "W"),
@@ -52,6 +53,13 @@ class Game():
             total += self.regions[region].get_percent()
         return round(100 - total / len(self.regions),2)
     
+    def getGlobalInfamy(self):
+        total = 0
+        for region in self.regions:
+            total += self.regions[region].get_infamy()
+        return round(total / len(self.regions))
+    
+    
     def reset_timer(self):
         self.time_left = 365
         self.time_left_raw = self.playtime_in_mins * 60 * 1000  
@@ -59,6 +67,7 @@ class Game():
     def updateTime(self, dt):
         self.time_left_raw -= dt
         self.time_left = round(365*self.time_left_raw/1000/60/self.playtime_in_mins)
+        self.game_time += dt
 
 
 global game    
@@ -184,9 +193,9 @@ def Start_Pressed(obj):
     game.game_state = "game"
     
     Hotbar = object.GameObject("Hot", assetLoader.images["Hotbar"], (0,0), None)
-    Hotbar.scale(1)
+    Hotbar.scale(0.95)
     Hotbar.center()
-    Hotbar.move(-230,310)
+    Hotbar.move(-230,285)
     
     object.objectManager.add(Hotbar)
     
@@ -235,7 +244,7 @@ def Start_Pressed(obj):
     Time_meter = object.GameObject("Time_meter", assetLoader.images["time"], (200,0))
     Time_meter.scale(0.28)
     Time_meter.center()
-    Time_meter.move(300,-350)
+    Time_meter.move(280,-350)
     
     Time_meter_text  = text.TextObject("Time_meter_text", "KAKAKA", presets.main_font, (255,10,0), (0,0))
     Time_meter_text.set_text(f"TIME LEFT: {game.time_left} d")
@@ -358,18 +367,23 @@ def Dem_Temple_Update(obj, dt):
     
             if "Demonic" in obj.name:
                 game.soul_count += my_region.reduce(1)
+                my_region.add_infamy(1/2)
             else:
                 game.soul_count += my_region.reduce(13)
+                my_region.add_infamy(5)
             
             
-            my_region.add_infamy(1/6)
+           
     else:
         obj.time_alive -= dt
    
    
  
 def Dem_Temple_Start(obj, dt):
-    obj.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
+    if "Demonic" in obj.name:
+        obj.set_position(mouse_pos[0]-30, mouse_pos[1]-20)
+    else:
+        obj.set_position(mouse_pos[0]-60, mouse_pos[1]-40)
     
     if game.cliked_region != None:
         obj.name = f"{obj.name}_{game.cliked_region}"
@@ -389,13 +403,18 @@ def Hellfire_Update(obj, dt):
         if obj.collides_with(church):
             church.destroy()
 
+    for church in object.objectManager.getObjectsListByName("BIGG_Church"):
+        if obj.collides_with(church):
+            church.destroy()
+
 def Church_Update(obj, dt):
     if game.game_state == "game":
         if obj.time_alive >= 3000:
             obj.time_alive = 0
             my_region = game.regions[obj.name[11:]]
-    
-            my_region.cure()
+
+            if("BIGG" in obj.name):
+                my_region.cure(5)
     else:
         obj.time_alive -= dt
         
@@ -409,6 +428,9 @@ def Upgrade_Click(obj):
     info.set_text(f"Level {lv}\\{cost} souls")
     if game.upgrades[obj.name].level == 4:
         info.set_text("MAX LEVEL")
+        
+        if obj.name == "Demon":
+            info.set_text("MAX LEVEL\\ \\BONUS:\\Bigger hellfire")
         
 
 
@@ -538,14 +560,15 @@ def inputEvent(event):
             cost = game.upgrades["Demon"].get_cost()
             lv = game.upgrades["Demon"].get_level()
             Demonic_upg_text = text.TextObject("INFO", f"Level {lv}\\{cost} souls", presets.main_font, (255,255,255))
-            if game.upgrades["Demon"].level == 4:
-                Demonic_upg_text.set_text("MAX LEVEL")
+            
             
             Demonic_upg.add_child(Demonic_upg_text)
             
             Demonic_upg_text.scale(0.18)
             Demonic_upg_text.center()
             Demonic_upg_text.move(0,0)
+            if game.upgrades["Demon"].level == 4:
+                Demonic_upg_text.set_text("MAX LEVEL\\ \\BONUS:\\Bigger hellfire")
             
             object.objectManager.add(Demonic_upg)
             
@@ -687,6 +710,11 @@ def inputEvent(event):
         hellfire = object.GameObject("Hellfire", assetLoader.images["hellfire"],(0,0),Hellfire_Update)
         hellfire.scale(1)
         hellfire.set_position(mouse_pos[0]-30,mouse_pos[1]-30)
+        if game.upgrades["Demon"].get_level() == 4:
+            hellfire.scale(2)
+            hellfire.set_hue(200)
+        
+            hellfire.move(10,10)
         hellfire.set_opacity(0)
         object.objectManager.add(hellfire)
             
@@ -808,18 +836,24 @@ def update_region_stats():
         #Kirkko random spawn
         
         if game.regions[region].percent != 100 and game.game_state == "game":
-            if random.random() >= 1-math.log(20*game.regions[region].infamy+1)/600:
+            if random.random() >= 1-math.log(20*game.regions[region].infamy+1)/490:
                 
                 if game.first_church == False:
                     game.first_church = True
                 game.church_region = region
                 print("added church")
-                church = object.GameObject(f"Holy_Church{region}", assetLoader.images["Holy_Church"], (0,0), Church_Update)
+                if(game.getGlobalCorruption() >= 60):
+                    church = object.GameObject(f"BIGG_Church{region}", assetLoader.images["Holy_Church"], (0,0), Church_Update)
+                    church.set_scale(0.2)
+                    church.set_hue(100)
+                else:
+                    church = object.GameObject(f"Holy_Church{region}", assetLoader.images["Holy_Church"], (0,0), Church_Update)
+                    church.scale(0.1)
                 
                 region_obj = object.objectManager.getObjectByName(region)
                 object.objectManager.add(church)
                 
-                church.scale(0.1)
+                
                 church.center()
                 church.move(random.randint(-400,400),random.randint(-400,400))
                 while not church.collides_with_mask(region_obj):

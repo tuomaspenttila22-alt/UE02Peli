@@ -18,15 +18,17 @@ class Region:
         
         
         self.percent -= self.effectiveness * 0.2 * factor
+        if self.percent >= 100:
+            self.percent = 100
         if self.percent <= 0:
             self.percent = 0
         else:
             self.changed_percent = True
         return round(self.effectiveness*self.foulness*15*factor)
 
-    def cure(self):
+    def cure(self, factor):
         
-        self.percent += 0.2
+        self.percent += 0.2 * factor
         if self.percent >= 100:
             self.percent = 100
         else:
