@@ -29,7 +29,7 @@ class Game():
         self.first_church = False
         self.church_region = None
         
-        self.soul_count = 15000000
+        self.soul_count = 150
         self.game_time = 0
                 
         self.regions = {"Europe" : region.Region("Europe", "W"),
